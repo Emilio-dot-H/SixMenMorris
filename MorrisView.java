@@ -1,6 +1,6 @@
 package Morris;
 
-import java.awt.Dimension;
+import java.awt.BorderLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -13,27 +13,27 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class MorrisView {
 
 	private JFrame frame;
 	private JLabel background;
-	private JLabel controlPanel;
+	private JPanel controlPanel, BPanel;
 	private JButton pos1, pos2, pos3, pos4, pos5, pos6, pos7, pos8, pos9, pos10, pos11, pos12, pos13, pos14, pos15,
 			pos16;
-	private JLabel blueDisk1, blueDisk2, blueDisk3, blueDisk4, blueDisk5, blueDisk6, redDisk1, redDisk2, redDisk3, redDisk4, 
-			redDisk5, redDisk6;
-	
+	private JButton disk;
+	private JLabel headerLabel;
 
 	public MorrisView() {
-		prepareGUI();
+	    prepareGUI();
 	}
 
 	public static void main(String[] args) {
 		MorrisView morris = new MorrisView();
 		morris.labelBackground();
 		morris.positions();
-	  //morris.diskPosition();
 	}
 
 	public void prepareGUI() {
@@ -43,8 +43,11 @@ public class MorrisView {
 		// Generate background...
 		labelBackground();
 		// Allowing frame to use JLabel
+		frame.setLayout(new BorderLayout());
 		frame.setContentPane(background);
-		frame.getContentPane().setPreferredSize(new Dimension(1000, 1000));
+		
+		frame.setSize(1000,1000);
+	//	frame.getContentPane().setPreferredSize(new Dimension(1000, 1000));
 		frame.setLayout(new GridBagLayout());
 		
 		frame.setLocationRelativeTo(null);
@@ -64,12 +67,12 @@ public class MorrisView {
 		point.insets = new Insets(110, 40, 105, 40);
 	
 		//Bigger Square (TOP)
-		JLabel pos1 = new JLabel("Row1Col1");
+		pos1 = new JButton("(             )");
 		point.gridx = 0;
 		point.gridy = 0;
 		pos1.setOpaque(false); //allows button to be invisible
-		//pos1.setContentAreaFilled(false);
-		//pos1.setBorderPainted(false);
+		pos1.setContentAreaFilled(false);
+		pos1.setBorderPainted(false);
 		frame.add(pos1, point);
 		pos2 = new JButton("Row1Col2");
 		point.gridx = 2;
@@ -199,16 +202,53 @@ public class MorrisView {
 		
 		frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-		
+        
+        diskPosition();
 		
 	}
-/*	public void diskPosition(){
+	public void diskPosition(){
+		
 		GridBagConstraints stone = new GridBagConstraints();
-		blueDisk1 = new JLabel("Disk 1");
-		stone.gridx = 8;
-		stone.gridy = 3;
-		frame.add(blueDisk1,stone);
+		JButton conv = new JButton();
+		disk = randomStart(conv);
+		stone.gridx=2;
+		stone.gridy=2;
+		
+		frame.add(disk, stone);
+		
 		frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-	} */
+        
+	/*	blueDisk = new JButton("BlueDisks");
+		redDisk = new JButton("RedDisks");
+		JPanel diskPanel = new JPanel(new GridLayout(1,2)); // 1 row, 2 cols
+		diskPanel.add(blueDisk);
+		diskPanel.add(redDisk);
+		frame.setLocationRelativeTo(null);
+        frame.setVisible(true);*/
+	} 
+	private JButton randomStart(JButton conv){
+		String x;
+		int rand = (int)(Math.random() * ((1) + 1));
+		System.out.println(rand);
+		String icon;
+		if (rand == 0){
+		    //headerLabel.setText("Red's turn ");
+			//disk.setBackground(Color.RED);
+			x = "Red's Turn";
+			icon = "RedPiece.png";
+		} 
+		else{
+			//headerLabel.setText("Blue's turn "); 
+			//disk.setBackground(Color.BLUE);
+			x = "Blue's Turn";
+			icon = "BluePiece.png";
+			}
+		ImageIcon piece = new ImageIcon(icon);
+		conv = new JButton(x, piece);
+		conv.setVerticalTextPosition(SwingConstants.BOTTOM);
+		// headerLabel = new JLabel(x, SwingConstants.CENTER); 
+		// frame.add(headerLabel);
+		return conv;
+	   }
 }
