@@ -23,18 +23,22 @@ public class Menu extends Environment {
 		
 	}
 	
+	// handles clicks on menu options
 	private Environment handleMenu(Point mouseClick){
 		
+		// start new game
 		if (view.clickInMenu(mouseClick, 0)) {
 			dispose();
 			return new Game();
 		}
 		
+		// start customizing game
 		else if (view.clickInMenu(mouseClick, 1)) {
 			dispose();
 			return new CustomGame();
 		}
 
+		// load a saved game
 		else if (view.clickInMenu(mouseClick, 2)) {
 			FileDialog fd = new FileDialog(this, "Load Game...");
 			fd.setVisible(true);

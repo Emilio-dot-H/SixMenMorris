@@ -1,12 +1,16 @@
 package morris;
 
+// The PieceType enum is used in the game model to represent pieces and tray/board entries
 public enum PieceType {
+	
+	// the piece types
 	BLUE, RED, BLUE_SELECTED, RED_SELECTED, UNOCCUPIED, PATH, INVALID, LEGAL, ILLEGAL;
 
 	private PieceType selected;
 	private PieceType deselected;
 	private PieceType swap;
 
+	// definitions used for methods
 	static {
 		BLUE.selected = BLUE_SELECTED;
 		RED.selected = RED_SELECTED;
@@ -39,14 +43,17 @@ public enum PieceType {
 		ILLEGAL.swap = ILLEGAL;
 	}
 
+	// changes piece to selected:  BLUE -> BLUE_SELECTED or RED -> RED_SELECTED,  no effect on other pieces
 	public PieceType select() {
 		return selected;
 	}
 
+	// changes piece to unselected:  BLUE_SELECTED -> BLUE or RED_SELECTED -> RED,  no effect on other pieces
 	public PieceType deselect() {
 		return deselected;
 	}
 
+	// changes piece to opposite:  BLUE -> RED,  RED -> BLUE,  no effect on other pieces
 	public PieceType swap() {
 		return swap;
 	}

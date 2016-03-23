@@ -20,28 +20,29 @@ public class MenuPane extends JPanel {
 	private final Font f;
 	private final FontMetrics fm;
 
+	// the items in the menu
 	private final String[] menuItems = { "Start New Game", "Create Custom Game", "Load Game" };
 
 	private final Rectangle inputMap[];
 
 	private int highlight;
 
-	/**
-	 * MenuPane default constructor
-	 */
 	public MenuPane() {
 
 		// set the preferred window size and background color
 		setPreferredSize(new Dimension(winX, winY));
 		setBackground(Color.lightGray);
 
+		// set font info for rendering
 		f = new Font("Dialog", Font.PLAIN, 20);
 		fm = getFontMetrics(f);
 
+		// set up spacing for rendering
 		menuSpace = winY / (menuItems.length + 1);
 
 		inputMap = new Rectangle[menuItems.length];
-
+		
+		// map clickable areas to the viewable menu items
 		for (int i = 0; i < menuItems.length; i++) {
 			int w = fm.stringWidth(menuItems[i]);
 			int h = fm.getHeight();
@@ -57,10 +58,12 @@ public class MenuPane extends JPanel {
     protected void paintComponent(Graphics g)  {
 		Graphics2D g2d = (Graphics2D) g;
 
+		// highlight menu option if mouse is over it
 		g2d.setColor(Color.YELLOW);
 		if (highlight != -1)
 			g2d.fill(inputMap[highlight]);
 
+		// render the menu text for each item
 		g2d.setFont(f);
 		g2d.setColor(Color.BLACK);
 		for (int i = 0; i < menuItems.length; i++)
@@ -68,6 +71,7 @@ public class MenuPane extends JPanel {
 
 	}
 
+	// returns true if a click is contained in menu item at index i
 	public Boolean clickInMenu(Point mouseClick, Integer i) {
 		if (inputMap[i] == null)
 			return false;
@@ -76,6 +80,7 @@ public class MenuPane extends JPanel {
 		return false;
 	}
 
+	// sets highlight to a menu item if it contains the specified point
 	public void highlightMenu(Point p) {
 
 		for (int i = 0; i < inputMap.length; i++) {

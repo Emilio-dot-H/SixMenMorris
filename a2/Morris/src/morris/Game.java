@@ -7,13 +7,16 @@ import java.io.File;
 
 import javax.swing.SwingUtilities;;
 
+// Window for the actual game (this is the game controller)
 public class Game extends Environment {
 
 	private static final long serialVersionUID = 1L;
 	
+	// the view and model for the game
 	private final GamePane view;
 	private final GameModel gameModel;
 
+	// default constructor starts a new game
 	public Game() {
 		super();
 		gameModel = new GameModel();
@@ -24,6 +27,7 @@ public class Game extends Environment {
 		setLocationRelativeTo(null);
 	}
 
+	// constructor to create game from a saved file
 	public Game(File inFile) {
 		super();
 		gameModel = new GameModel(inFile);
@@ -34,6 +38,7 @@ public class Game extends Environment {
 		setLocationRelativeTo(null);
 	}
 	
+	// constructor to create game from a custom created board
 	public Game(GameModel gameModel) {
 		super();
 		this.gameModel = gameModel;
@@ -44,14 +49,19 @@ public class Game extends Environment {
 		setLocationRelativeTo(null);
 	}
 
+	// checks if a mouse click was on a menu item
+	// if so, the corresponding action is carried out
 	private Environment handleInGameMenu(Point mouseClick) {
+		
+		// return to main menu
 		if (view.clickInMenu(mouseClick, 0)) {
 			dispose();
 			return new Menu();
 		}
 
+		// save game
 		if (view.clickInMenu(mouseClick, 1)) {
-			FileDialog fd = new FileDialog(this, "Save Game...");
+			FileDialog fd = new FileDialog(this, "Save Game...", FileDialog.SAVE);
 			fd.setVisible(true);
 			if (fd.getFile() != null)
 				gameModel.save(fd.getFiles()[0]);
@@ -59,111 +69,32 @@ public class Game extends Environment {
 
 		return null;
 	}
-
-	private void handlePlacement(Point mouseClick) {
-
-		for (int i = 0; i < gameModel.getPieceCount() * 2; i++) {
-
-			if (view.clickInTray(mouseClick, i)) {
-				if (gameModel.isOwnerAt(i)) {
-					if (gameModel.isSelectedAt(i)) {
-						gameModel.deselectPiece(i);
-						return;
-					}
-					if (gameModel.isSelected())
-						gameModel.deselectPiece(gameModel.getSelected()[0]);
-					gameModel.selectPiece(i);
-				}
-
-			}
-
-		}
-
-		for (int i = 0; i < gameModel.getBoardSize(); i++) {
-			for (int j = 0; j < gameModel.getBoardSize(); j++) {
-				if (view.clickInBoard(mouseClick, i, j) && gameModel.isSelected() && gameModel.isUnoccupiedAt(i, j)) {
-					gameModel.placePiece(i, j);
-					gameModel.deselectPiece(gameModel.getSelected()[0]);
-					gameModel.removePiece(gameModel.getSelected()[0]);
-					if (gameModel.checkForMill(i, j))
-						gameModel.setValidDeletions();
-					else {
-						if (gameModel.isBlueTurn() && gameModel.getBluePlaced() == 0 || gameModel.isRedTurn() && gameModel.getRedPlaced() == 0)
-							if (gameModel.getTotalMoves() == 0)
-								gameModel.setWinnerOpponent();
-						gameModel.nextTurn();
-					}
-				}
-			}
-		}
-
+	
+	// checks if a mouse click was on the game board
+	// if so, passes the tray/board location to the model for processing
+	private void handlePlay(Point mouseClick){
+		
+		for (int i = 0; i < gameModel.getPieceCount() * 2; i++) 
+			if (view.clickInTray(mouseClick, i))
+				gameModel.play(i);
+		
+		for (int i = 0; i < gameModel.getBoardSize(); i++) 
+			for (int j = 0; j < gameModel.getBoardSize(); j++) 
+				if (view.clickInBoard(mouseClick, i, j)) 
+					gameModel.play(i,j);
+		
+		
 	}
-
-	private void handleMove(Point mouseClick) {
-		for (int i = 0; i < gameModel.getBoardSize(); i++) {
-			for (int j = 0; j < gameModel.getBoardSize(); j++) {
-				if (view.clickInBoard(mouseClick, i, j)) {
-					if (gameModel.isOwnerAt(i, j)) {
-						if (gameModel.isSelectedAt(i, j)) {
-							gameModel.deselectPiece(i, j);
-							return;
-						}
-						if (gameModel.isSelected())
-							gameModel.deselectPiece(gameModel.getSelected()[0], gameModel.getSelected()[1]);
-						gameModel.selectPiece(i, j);
-					}
-
-					else if (gameModel.isSelected() && gameModel.isLegalAt(i, j)) {
-						gameModel.placePiece(i, j);
-						gameModel.deselectPiece(gameModel.getSelected()[0], gameModel.getSelected()[1]);
-						gameModel.removePiece(gameModel.getSelected()[0], gameModel.getSelected()[1]);
-						if (gameModel.checkForMill(i, j))
-							gameModel.setValidDeletions();
-						else {
-							gameModel.nextTurn();
-							if (gameModel.getTotalMoves() == 0)
-								gameModel.setWinnerOpponent();
-						}
-					}
-				}
-
-			}
-		}
-	}
-
-	private void handleDeletion(Point mouseClick) {
-		for (int i = 0; i < gameModel.getBoardSize(); i++) {
-			for (int j = 0; j < gameModel.getBoardSize(); j++) {
-				if (view.clickInBoard(mouseClick, i, j)) {
-					if (gameModel.isLegalAt(i, j)) {
-						gameModel.removePiece(i, j);
-						if (gameModel.getOpponentCount() == gameModel.getLosingPieceCount())
-							gameModel.setWinnerCurrent();
-						gameModel.nextTurn();
-						if (gameModel.getTotalMoves() == 0) {
-							gameModel.setWinnerOpponent();
-						}
-					}
-				}
-			}
-		}
-	}
-
+	
+	// if mouse is clicked, check if click is on menu item or the tray/game board
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
 		Point mouseClick = SwingUtilities.convertPoint(this, e.getPoint(), view);
 		
 		next = handleInGameMenu(mouseClick);
-
-		if (!gameModel.isWinner()) {
-			if (gameModel.requiresDeletion())
-				handleDeletion(mouseClick);
-			else if (gameModel.isPlacingPhase())
-				handlePlacement(mouseClick);
-			else
-				handleMove(mouseClick);
-		}
+		
+		handlePlay(mouseClick);
 		
 	}
 
@@ -191,6 +122,7 @@ public class Game extends Environment {
 		
 	}
 
+	// treat drag as mouse click
 	@Override
 	public void mouseDragged(MouseEvent e) {
 
@@ -198,6 +130,7 @@ public class Game extends Environment {
 		
 	}
 
+	// when mouse is moved, check if the mouse is over menu options and highlight if so
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		
